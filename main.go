@@ -44,6 +44,5 @@ func main() {
 	router.GET("/", index)
 	router.GET("/test", test)
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
-	http.ListenAndServe(":5000", router)
-
+	http.ListenAndServe(addr, router)
 }
