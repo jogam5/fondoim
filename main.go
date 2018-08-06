@@ -1,13 +1,15 @@
 package main
 
 import (
-	"log"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
+	"html/template"
+	"log"
 	"net/http"
 	"os"
 )
 
-func determineListenAddress() (string, error){
+func determineListenAddress() (string, error) {
 	port := os.Getenv("PORT")
 	if port == "" {
 		return "", fmt.Errorf("$PORT not set")
@@ -15,19 +17,33 @@ func determineListenAddress() (string, error){
 	return ":" + port, nil
 }
 
-func hello(w http.ResponseWriter, r *http.Request){
-	fmt.Fprint(w, "Hello World FIM")
+func test(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	t, err := template.ParseFiles("templates/index.html", "templates/footer.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(w, nil)
 }
 
-func main(){
+func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	t, err := template.ParseFiles("templates/cover.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(w, nil)
+}
+
+func main() {
 	addr, err := determineListenAddress()
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("Listening well on PORT%s...\n", addr)
 
-	http.HandleFunc("/", hello)
-	log.Printf("Listening on %s...\n", addr)
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		panic(err)
-	}
+	router := httprouter.New()
+	router.GET("/", index)
+	router.GET("/test", test)
+	router.ServeFiles("/static/*filepath", http.Dir("static"))
+	http.ListenAndServe(":5000", router)
+
 }
