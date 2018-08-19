@@ -18,7 +18,7 @@ func determineListenAddress() (string, error) {
 }
 
 func test(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	t, err := template.ParseFiles("templates/index.html", "templates/footer.html")
+	t, err := template.ParseFiles("templates/index.html", "templates/footer.html", "templates/mision.html")
 	if err != nil {
 		log.Println(err)
 	}
@@ -27,6 +27,14 @@ func test(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	t, err := template.ParseFiles("templates/cover.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(w, nil)
+}
+
+func mision(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	t, err := template.ParseFiles("templates/mision.html")
 	if err != nil {
 		log.Println(err)
 	}
@@ -42,6 +50,7 @@ func main() {
 
 	router := httprouter.New()
 	router.GET("/", index)
+	router.GET("/mision", mision)
 	router.GET("/test", test)
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	http.ListenAndServe(addr, router)
